@@ -1,0 +1,74 @@
+#!/bin/bash
+
+# Constants
+p_bg="/usr/share/lightdm/background.jpg"
+
+p_conf="/etc/lightdm-dynamic/lightdm-dynamic.conf"
+p_conf_lightdm="/etc/lightdm/lightdm-gtk-greeter.conf"
+
+
+# START OF : Helpers
+
+string_fetch() {
+    grep -i "$1" "$2" | sed 's/.*= "\?\([^"]*\)"\?/\1/'
+}
+
+string_clean() {
+    echo "$1" | sed 's/[^a-zA-Z0-9 ]//g; s/ /+/g'
+}
+
+string_fetch_clean() {
+    string_clean $(string_fetch "$1" "$2")
+}
+
+# END OF : Helpers
+
+
+
+
+# START OF : Functions
+
+conf_lightdm_edit() {
+	# LightDM's config has background property ( ? )
+	if grep -q '^background =' "$p_conf_lightdm"; then
+		# Update property
+		sudo sed -i "s#^background = .*#background = $p_bg#" "$p_conf_lightdm"
+	else
+		# Append property
+		sudo echo "background = $p_bg" >> $p_conf_lightdm
+	fi
+}
+
+# END OF : Functions
+
+
+
+
+# START OF : Pre-checks
+
+if [ ! -e "$p_conf_lightdm" ]; then
+	exit 1;
+fi
+
+# END OF : Pre-checks
+
+
+conf_source="$(string_fetch "source" "$p_conf")"
+conf_keywords="$(string_fetch_clean "keywords" "$p_conf")"
+
+wget_url="${conf_source/\<keywords\>/"$conf_keywords"}"
+
+# Download image
+sudo wget -q "$wget_url" -O $p_bg
+
+# Clause Guards Method background file checks
+if [ ! -e "$p_bg" ]; then
+	exit 1;
+fi
+if [ $(file -b --mime-type "$p_bg") != "image/jpeg" ]; then
+	exit 1;
+fi
+
+conf_lightdm_edit
+
+exit 0

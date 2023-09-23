@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Define the path to the DynamicDM script
+#dynamicdm_script="/etc/cron.hourly/lightdm-dynamic"
+
+path_bin="/usr/bin/lightdm-dynamic"
+path_link="/etc/cron.hourly/lightdm-dynamic"
+
+path_bin_conf="/usr/bin/lightdm-dynamic-conf"
+
+ln -s $path_bin $path_link
+chmod +x $path_link
+
+for path_item in "$path_bin" "$path_bin_conf"; do
+	if ! sudo grep -qF "$path_item" /etc/sudoers; then
+		echo "%sudo ALL=(ALL:ALL) NOPASSWD: $path_item" | sudo tee -a /etc/sudoers
+	fi
+done;
+
+sudo $path_bin

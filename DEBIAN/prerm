@@ -1,0 +1,12 @@
+#!/bin/sh
+
+set -e
+
+path_link="/etc/cron.hourly/lightdm-dynamic"
+
+# Remove the symbolic link in /etc/cron.hourly
+rm -f $path_link
+
+# Exit with success
+exit 0
+

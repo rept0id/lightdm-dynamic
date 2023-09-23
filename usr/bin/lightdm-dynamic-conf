@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Path to the configuration file
+conf_file="/etc/lightdm-dynamic/lightdm-dynamic.conf"
+
+# Read the existing values from the configuration file
+current_keywords=$(grep -i "^keywords" "$conf_file" | sed 's/.*= "\?\([^"]*\)"\?/\1/')
+current_source=$(grep -i "^source" "$conf_file" | sed 's/.*= "\?\([^"]*\)"\?/\1/')
+
+# Use Zenity to prompt the user for new values, with the existing values as defaults
+new_keywords=$(zenity --entry --title="Edit Keywords" --text="Enter new keywords:" --entry-text="$current_keywords")
+new_source=$(zenity --entry --title="Edit Source" --text="Enter new source URL:" --entry-text="$current_source")
+
+# Check if the user canceled the dialogs
+if [ $? -eq 1 ]; then
+   zenity --info --text="Operation canceled by the user."
+   exit 1
+fi
+
+# Check if the user provided new values
+if [ -n "$new_keywords" ]; then
+    sed -i "s/^keywords = .*/keywords = \"$new_keywords\"/" "$conf_file"
+fi
+
+if [ -n "$new_source" ]; then
+    sed -i "s|^source = .*|source = \"$new_source\"|" "$conf_file"
+fi
+
+zenity --info --text="Configuration updated successfully."
+
+exit 0
+
