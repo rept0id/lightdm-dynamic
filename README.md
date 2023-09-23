@@ -1,7 +1,7 @@
 # lightdm-dynamic
 Dynamic background switcher for LightDM
 
-After installation, you can run "LightDm Dynamic Configuration" to change background's topic (keywords) and source.
+After installation, you can run "LightDm Dynamic Configuration" from "applications" menu, if you wish to change background's topic (keywords) and source.
 
 Default topic is cockpits and source is "Unsplash".
 
