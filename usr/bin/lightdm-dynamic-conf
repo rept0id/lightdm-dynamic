@@ -1,15 +1,34 @@
 #!/bin/bash
 
 # Path to the configuration file
-conf_file="/etc/lightdm-dynamic/lightdm-dynamic.conf"
+p_conf="/etc/lightdm-dynamic/lightdm-dynamic.conf"
+p_log="/tmp/lightdm-dynamic-log.txt"
+
+
+# START OF : Helpers
+
+string_fetch() {
+    grep -i -E "$1\s*=" "$2" | sed 's/.*= "\?\([^"]*\)"\?/\1/'
+}
+
+string_clean() {
+    echo "$1" | sed -e 's/[^a-zA-Z0-9, ]//g' -e 's/ /+/g'
+}
+
+string_fetch_clean() {
+    string_clean "$(string_fetch "$1" "$2")"
+}
+
+# END OF : Helpers
+
 
 # Read the existing values from the configuration file
-current_keywords=$(grep -i "^keywords" "$conf_file" | sed 's/.*= "\?\([^"]*\)"\?/\1/')
-current_source=$(grep -i "^source" "$conf_file" | sed 's/.*= "\?\([^"]*\)"\?/\1/')
+conf_keywords="$(string_fetch_clean "keywords" "$p_conf")"
+conf_source="$(string_fetch "source" "$p_conf")"
 
 # Use Zenity to prompt the user for new values, with the existing values as defaults
-new_keywords=$(zenity --entry --title="Edit Keywords" --text="Enter new keywords:" --entry-text="$current_keywords")
-new_source=$(zenity --entry --title="Edit Source" --text="Enter new source URL:" --entry-text="$current_source")
+new_keywords=$(string_clean "$(zenity --entry --title="lightdm-dynamic" --text="Enter new keywords:" --entry-text="$conf_keywords")")
+new_source=$(zenity --entry --title="lightdm-dynamic" --text="Enter new source URL:" --entry-text="$conf_source")
 
 # Check if the user canceled the dialogs
 if [ $? -eq 1 ]; then
@@ -19,12 +38,16 @@ fi
 
 # Check if the user provided new values
 if [ -n "$new_keywords" ]; then
-    sed -i "s/^keywords = .*/keywords = \"$new_keywords\"/" "$conf_file"
+    sed -i "s/^keywords = .*/keywords = \"$new_keywords\"/" "$p_conf"
 fi
 
 if [ -n "$new_source" ]; then
-    sed -i "s|^source = .*|source = \"$new_source\"|" "$conf_file"
+    sed -i "s|^source = .*|source = \"$new_source\"|" "$p_conf"
 fi
+
+/bin/bash /usr/bin/lightdm-dynamic > "$p_log"
+
+zenity --text-info --width=400 --height=300 --title="lightdm-dynamic" --filename="$p_log"
 
 zenity --info --text="Configuration updated successfully."
 

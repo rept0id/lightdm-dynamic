@@ -10,15 +10,15 @@ p_conf_lightdm="/etc/lightdm/lightdm-gtk-greeter.conf"
 # START OF : Helpers
 
 string_fetch() {
-    grep -i "$1" "$2" | sed 's/.*= "\?\([^"]*\)"\?/\1/'
+    grep -i -E "$1\s*=" "$2" | sed 's/.*= "\?\([^"]*\)"\?/\1/'
 }
 
 string_clean() {
-    echo "$1" | sed 's/[^a-zA-Z0-9 ]//g; s/ /+/g'
+    echo "$1" | sed -e 's/[^a-zA-Z0-9, ]//g' -e 's/ /+/g'
 }
 
 string_fetch_clean() {
-    string_clean $(string_fetch "$1" "$2")
+    string_clean "$(string_fetch "$1" "$2")"
 }
 
 # END OF : Helpers
@@ -52,14 +52,20 @@ fi
 
 # END OF : Pre-checks
 
+echo "[LightDM-dynamic] : START"
 
 conf_source="$(string_fetch "source" "$p_conf")"
 conf_keywords="$(string_fetch_clean "keywords" "$p_conf")"
 
 wget_url="${conf_source/\<keywords\>/"$conf_keywords"}"
 
+echo "[LightDM-dynamic] : WGET URL : $wget_url"
+echo "[LightDM-dynamic] : WGET START"
+
 # Download image
 sudo wget -q "$wget_url" -O $p_bg
+
+echo "[LightDM-dynamic] : WGET END"
 
 # Clause Guards Method background file checks
 if [ ! -e "$p_bg" ]; then
@@ -70,5 +76,7 @@ if [ $(file -b --mime-type "$p_bg") != "image/jpeg" ]; then
 fi
 
 conf_lightdm_edit
+
+echo "[LightDM-dynamic] : END"
 
 exit 0

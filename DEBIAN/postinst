@@ -4,14 +4,22 @@
 #dynamicdm_script="/etc/cron.hourly/lightdm-dynamic"
 
 path_bin="/usr/bin/lightdm-dynamic"
-path_link="/etc/cron.hourly/lightdm-dynamic"
+path_cron="/etc/cron.hourly/lightdm-dynamic-cron"
 
 path_bin_conf="/usr/bin/lightdm-dynamic-conf"
 
-ln -s $path_bin $path_link
-chmod +x $path_link
+#Archived code : Veforewe were using symbolic link in cron folder instead of a script
+# START OF : ARCHIVED CODE
+#path_link="/etc/cron.hourly/lightdm-dynamic"
+##...
+#ln -s $path_bin $path_link
+#chmod +x $path_link
+##...
+#for path_item in "$path_bin" "$path_link"; do
+##...
+# END OF : ARCHIVED CODE
 
-for path_item in "$path_bin" "$path_bin_conf"; do
+for path_item in "$path_bin" "$path_cron"; do
 	if ! sudo grep -qF "$path_item" /etc/sudoers; then
 		echo "%sudo ALL=(ALL:ALL) NOPASSWD: $path_item" | sudo tee -a /etc/sudoers
 	fi

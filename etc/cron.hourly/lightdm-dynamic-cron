@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "[LightDM-dynamic] : Cron START"
+
+/bin/bash /usr/bin/lightdm-dynamic
+
+echo "[LightDM-dynamic] : Cron END"
