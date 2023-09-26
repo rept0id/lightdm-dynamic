@@ -30,3 +30,5 @@ Default topic is cockpits and source is "Unsplash".
         └── applications
             └── lightdm-dynamic-conf.desktop --> "LightDm Dynamic Configuration" desktop entry (for "applications" menu)
 ```
+
+Special thanks to [Irina Kalman](https://github.com/irinakalman) !
